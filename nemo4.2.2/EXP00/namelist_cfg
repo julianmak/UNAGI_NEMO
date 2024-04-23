@@ -21,7 +21,7 @@
 !-----------------------------------------------------------------------
    cn_exp      =  "UNAGI"  !  experience name
    nn_it000    =       1   !  first time step
-   nn_itend    =    8640   !  last  time step (std 5840)
+   nn_itend    =     864   !  last  time step (std 5840)
    nn_date0    =   10101   !
    nn_leapy    =      30   !  Leap year calendar (1) or not (0)
    ln_rstart   = .false.   !  start from rest (F) or from a restart file (T)
@@ -73,9 +73,10 @@
 !!   namsbc_ssr      sea surface restoring term (for T and/or S)        (ln_ssr     =T)
 !!   namsbc_rnf      river runoffs                                      (ln_rnf     =T)
 !!   namsbc_apr      Atmospheric Pressure                               (ln_apr_dyn =T)
+!!   namsbc_isf      ice shelf melting/freezing                         (ln_isfcav  =T : read (ln_read_cfg=T) or set or usr_def_zgr )
+!!   namsbc_iscpl    coupling option between land ice model and ocean   (ln_isfcav  =T)
 !!   namsbc_wave     external fields from wave model                    (ln_wave    =T)
 !!   namberg         iceberg floats                                     (ln_icebergs=T)
-!!   namsbc_fwb      freshwater-budget adjustment                       (nn_fwb > 0)
 !!======================================================================
 !
 !-----------------------------------------------------------------------
@@ -128,7 +129,7 @@
 !!               ***  Lateral boundary condition  ***                 !!
 !!                                                                    !!
 !!   namlbc        lateral momentum boundary condition                  (default: NO selection)
-!!   namagrif      agrif nested grid   (read by child model only)       ("key_agrif")
+!!   namagrif      agrif nested grid ( read by child model only )       ("key_agrif")
 !!   nam_tide      Tidal forcing                                        (default: OFF)
 !!   nambdy        Unstructured open boundaries                         (default: OFF)
 !!   nambdy_dta    Unstructured open boundaries - external data         (see  nambdy)
@@ -293,7 +294,7 @@
 !!======================================================================
 !
 !-----------------------------------------------------------------------
-&namzdf        !   vertical physics manager                             (default: NO selection)
+&namzdf        !   vertical physics                                     (default: NO selection)
 !-----------------------------------------------------------------------
    ln_zdfcst   = .true.       !  constant mixing
    ln_zdftke   = .false.      !  Turbulent Kinetic Energy closure       (T =>   fill namzdf_tke)
@@ -323,13 +324,6 @@
 !!   nam_diadct   transports through some sections                      (default: OFF)
 !!   nam_dia25h   25h Mean Output                                       (default: OFF)
 !!   namnc4       netcdf4 chunking and compression settings             ("key_netcdf4")
-!!======================================================================
-!
-!!======================================================================
-!!               ***  Observation & Assimilation  ***                 !!
-!!                                                                    !!
-!!   namobs       observation and model comparison                      (default: OFF)
-!!   nam_asminc   assimilation increments                               ('key_asminc')
 !!======================================================================
 !
 !!======================================================================

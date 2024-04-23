@@ -621,6 +621,11 @@ CONTAINS
             END DO
          ENDIF
          !
+         !!!!!!!!!!!!!!!!!!!!!!
+         ! JM (14 Apr 19): if GM is involved then switch on the slopes by default
+         l_ldfslp = .TRUE.
+         IF(lwp) WRITE(numout,*) 'HACK ln_ldfeiv is on, switching on l_ldfslp = ', l_ldfslp
+         !!!!!!!!!!!!!!!!!!!!!!
       ENDIF
       !
    END SUBROUTINE ldf_eiv_init
