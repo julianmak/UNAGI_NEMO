@@ -7,7 +7,7 @@ The model is used for the [Mak et al (2023) paper](https://agupubs.onlinelibrary
 # key notes and quick instructions:
 * The GEOMETRIC code (see [personal repository](https://github.com/julianmak/GEOMETRIC_code) or the [NEMO Gitlab](https://forge.nemo-ocean.eu/nemo/nemo/-/tree/main/src/OCE/LDF?ref_type=heads)) mostly in `ldfeke.f90`.
 * Wrote in by hand an enhanced vertical diffusivity profile for use with the channel model in `zdfphy.f90`.
-* (BUG?) If model has linear ssh (which UNAGI does), it might default into the non-default computation for mean-flow advection of energy (which I personally don't remember and no longer understand...) The signature is that `trd_eke_adv_ubv` is smaller than all the other trends by about three orders of magnitude, and `eke` is too concentrated over the ridge. Code provided has the relevant parts commented out as a hack.
+* (BUG?) If model has linear ssh (which UNAGI does), it might default into the non-default computation for mean-flow advection of energy (which I personally don't remember and no longer understand...) The signature is that `trd_eke_adv_ubt` is smaller than all the other trends by about three orders of magnitude, and `eke` is too concentrated over the ridge. Code provided has the relevant parts commented out as a hack.
 * (problem with TRUNK?) nemo4.2 trunk UNAGI for R100 seems to have a shift in the sponge region where vertical diffusivity is enhanced. Should have at least three points, which is the case in nemo4.2.1 and nemo4.2.2, but only one point in nemo4.2 trunk for some reason, using the same domcfg files.
 
 # key updates:
