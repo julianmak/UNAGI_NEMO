@@ -560,9 +560,9 @@ CONTAINS
       ! if using beta_plane, compute beta and f0 using values from the 1st domain
       IF ( ln_beta_plane ) THEN
         IF ( narea .eq. 1 ) THEN
-           zf0 = ff_f(1,1)
-           zbeta = (ff_f(1,2) - zf0) / e2t(1,1)
-        ELSE
+           zf0 = ff_f(1,2)
+           zbeta = (ff_f(1,3) - zf0) / e2t(1,1) ! TODO JM: zbeta = 0 for (1,1) and (1,2) for some reason, dirty hack for now
+        ELSE                                    !          probably should put in a check and complain if it is zero
            zf0   = HUGE(1._wp)
            zbeta = HUGE(1._wp)
         ENDIF
