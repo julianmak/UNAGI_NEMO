@@ -209,7 +209,7 @@ CONTAINS
       !
       !                    !*  upstream advection with initial mass fluxes & intermediate update
       !                          !* upstream tracer flux in the i and j direction
-      IF( .NOT. lk_linssh ) THEN
+!      IF( .NOT. lk_linssh ) THEN
          DO_2D( 1, 0, 1, 0 )
             ! upstream scheme by depth-averaged velocity (which should be un_adv * r1_hu etc.)
             ! however, zwx with depth-averaged eke should then multiplied by hu to restore dimensions, so no r1_h[uv] factor here
@@ -230,11 +230,11 @@ CONTAINS
             zadv_ubt(ji,jj) = - (  ( zwx(ji,jj) - zwx(ji-1,jj  ) )   &
                &                 + ( zwy(ji,jj) - zwy(ji  ,jj-1) )  ) * tmask(ji,jj,1) * r1_e1e2t(ji,jj)
          END_2D
-      ELSE                                !* top value   (linear free surf. only as zwz is multiplied by wmask)
-         DO_2D( 0, 0, 0, 0 )
-            zadv_ubt(ji,jj) = - ww(ji,jj,1) * eke_geom(ji,jj,Kbb) / ( ht_0(ji,jj) + 1._wp-tmask(ji,jj,1) )   ! jm (03 Mar 18): was eke_n
-         END_2D
-      ENDIF
+!      ELSE                                !* top value   (linear free surf. only as zwz is multiplied by wmask)
+!         DO_2D( 0, 0, 0, 0 )
+!            zadv_ubt(ji,jj) = - ww(ji,jj,1) * eke_geom(ji,jj,Kbb) / ( ht_0(ji,jj) + 1._wp-tmask(ji,jj,1) )   ! jm (03 Mar 18): was eke_n
+!         END_2D
+!      ENDIF
       !
       !                          !* same as above but for advection by Rossby waves
       zadv_wav(:,:) = 0._wp
