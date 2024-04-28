@@ -1,0 +1,110 @@
+Notes on updating the filtering variable in the splitting procedure
+
+# ongoings
+
+! Gurvan suggested filtering slopes instead
+  ?? filtering of slopes could be 1d solves?
+  -- personally not convinced, because filter(M/N) != filter(M) / filter(N) etc.
+  -- could try both
+     !! will need retune the tolerance
+
+! remember to remove the "wslp[ij]" output definitions in due course
+
+!? "ln_eke_equ" is not used, prboably should remove it
+
+# Apr 21 2024
+
+* created a "UNAGI_filter_slps" on HPC3 to explore sensitivity
+  -- downloaded the MY_SRC and did an appropriate meld
+  -- use R025 to test
+     ?? dependence on tolerance
+        -- try 1e-4, 1e-5, 1e-6 and 1e-7 (5e-6?)
+           ?? 1e-7 looks basically like 1e-6, probably excessive
+           ?? 1e-5 not that different to 1e-6?
+           -- 1e-4 leads to noticeable damping in the inst vorticity
+              (as could have been guessed from the Python tests)
+        -- for reference, previous case needs about 140 iterations for convergence
+           ?? previous case is 140 and then 2, here it is about 170 but twice?
+              -- python code reproduces the latter rather than former behaviour, 
+                 probably ok...
+     ?? dependence on length scale (100km in T is not 100km in slp ~ \nabla T?)
+        -- try 50km, 75km, 100km and 150km
+           ?? 50km is definitely too low
+           ?? 75km could work?
+
+# Apr 20 2024
+
+* did a run in R100, doesn't seem to break at least...test this in R025 another time
+
+* add in IF loops to use different slopes
+  -- twice in "ldf_eke" for computing aei[uv] and eddy energy budget
+     !? slopes are large-scale but N is not, inconsistency probably...
+  -- once in "ldf_tra_trp" in computing the Stokes streamfunction
+     -- failed because of a spelling mistake, fixed and recompiles
+  -- "wslp[ij]" is not touched, so this does not affect e.g. option 21 in eiv,
+     isoneutral diffusion, and others
+
+* seems to be doing stuff, but need to check on tolerances
+  -- currrently it's 0.001 which was ok for TRACERS
+  -- slopes have magnitude no more than 0.01, but generally less, so want tol
+     substantially smaller than that probably
+     -- downloaded a R025 calculation and did some empirical testing, *** 1e-6 *** looks ok
+        -- tried 1e-7 and 1e-8, very little change
+
+* re-adjust "ldftra_split"
+  -- don't need the allocation of arrays now (put it in "ldfslp")
+  -- replace mentions of "tsb_l" for now with "wslpi_l"
+     -- entirely passive, just to check if it is doing diffusion right
+     -- needed to add "USE ldfslp" to see the relevant public variables
+  -- going to be lazy and just do a copy and paste job (since it's only two variables
+     being filtered)
+
+* restored the original "step.F90"
+  -- but add a call to "ldf_tra_split" after "ldf_slp" 
+
+* allocate and init "wslp[ij]_large"
+  -- in "ldfslp.F90"
+     -- "ln_ldftra_split" flag implicit in "ldfslp", but already defined in "ldftra"
+        -- include a "USE" call, but then circular dependency
+           -- move the definition to "ldfslp", but the read is still in "ldftra"
+     -- no initialisation of variable, "ln_ldftra_split" not being read
+        -- no XIOS call...? add it back in "ldftra"
+     -- GOD DAMN IT USED THE WRONG LINKED EXECUTABLE!! >:(
+        -- everything is actually fine
+
+* output the wslp[ij] fields somewhere
+  -- already in "ldftra" and "field_def"
+  -- already in "field_def" (forgot to remove from previously I guess)
+
+* for filtering on slopes:
+  -- probalby only hit "wslp[ij]"
+     -- "[uv]slp" only used in "dynldf_iso" and "ldftra_iso", which is not related
+        to eiv here
+  -- "wslp[ij]" used in "dynldf_iso" and "ldftra_iso" however
+     !? at the momentum we have the call ordering "dyn_ldf", "ldf_eke", "tra_ldf",
+        so recomputing the slopes is going to be annoying
+        -- least invasive probably to compute two sets of slopes, something like:
+
+        0. "ldf_slp" call as usual
+        1. "traldf_split" -> "wlps[ij]_l" (so define two new public variables)
+        2. if ( ln_ldftra_split )  "ldf_eke" and "ldf_eiv_trp" to use "wslp[ij]_l"
+           -- just two lines in "ldf_eke"
+           -- one for loop in "ldf_eiv_trp"
+
+  !? probably don't need to touch "wslp[ij]ml", because that's used to modify
+     "wslp[ij]", so then filter on end product should be ok?
+
+* complications? for density anomaly filtering:
+  -- need to hit "prd" (density anomalies)
+  -- need to generate associated "rn2b"
+  -- routine "zps_hde" for partial cell modification also wants a recomputation
+     of the tracers, so need to do filter tracers as well?
+  -- then might as well do it on the tracers, but then this presumably causes further
+     complications with nonlinear equations of state...
+
+* split out two UNAGI folders to do the update of the splitting in NEMO 4.0.5 first
+  -- updated ldfeke with most of the bugs fixed (left the dynldf_lap_blp for now)
+     -- executable runs at least
+  -- split_dens should give the same thing (up to the choice of covergence tolerance), 
+     because UNAGI uses linear equation of state
+
